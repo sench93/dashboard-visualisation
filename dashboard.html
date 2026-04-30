@@ -109,13 +109,13 @@
   </div>
 
   <div class="cards">
-    <div class="card"><div class="label">Total</div><div class="value" style="color:#58a6ff" id="cTotal">‚Äî</div></div>
-    <div class="card"><div class="label">Long</div><div class="value" style="color:#3fb950" id="cLong">‚Äî</div></div>
-    <div class="card"><div class="label">Short</div><div class="value" style="color:#f85149" id="cShort">‚Äî</div></div>
-    <div class="card"><div class="label">Win Rate</div><div class="value" style="color:#d29922" id="cWR">‚Äî</div><div class="sub" id="cSub"></div></div>
-    <div class="card"><div class="label">Wins</div><div class="value" style="color:#3fb950" id="cWins">‚Äî</div></div>
-    <div class="card"><div class="label">Losses</div><div class="value" style="color:#f85149" id="cLoss">‚Äî</div></div>
-    <div class="card"><div class="label">Open</div><div class="value" style="color:#bc8cff" id="cOpen">‚Äî</div></div>
+    <div class="card"><div class="label">Total</div><div class="value" style="color:#58a6ff" id="cTotal">-</div></div>
+    <div class="card"><div class="label">Long</div><div class="value" style="color:#3fb950" id="cLong">-</div></div>
+    <div class="card"><div class="label">Short</div><div class="value" style="color:#f85149" id="cShort">-</div></div>
+    <div class="card"><div class="label">Win Rate</div><div class="value" style="color:#d29922" id="cWR">-</div><div class="sub" id="cSub"></div></div>
+    <div class="card"><div class="label">Wins</div><div class="value" style="color:#3fb950" id="cWins">-</div></div>
+    <div class="card"><div class="label">Losses</div><div class="value" style="color:#f85149" id="cLoss">-</div></div>
+    <div class="card"><div class="label">Open</div><div class="value" style="color:#bc8cff" id="cOpen">-</div></div>
   </div>
 
   <div class="charts">
@@ -177,12 +177,12 @@ function tfLabel(v) {
   return (n / 1440) + 'D';
 }
 function fmtTime(iso) {
-  if (!iso) return '‚Äî';
+  if (!iso) return '-';
   return new Date(iso).toLocaleString('en-GB', { month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false }).replace(',','');
 }
 function fmt(v) {
   const n = parseFloat(v);
-  return isNaN(n) ? '‚Äî' : n.toLocaleString('en', { maximumFractionDigits: 4 });
+  return isNaN(n) ? '-' : n.toLocaleString('en', { maximumFractionDigits: 4 });
 }
 
 // ‚îÄ‚îÄ Render stats + charts for a given signal set ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
@@ -195,7 +195,7 @@ function renderStats(signals) {
   const open     = signals.filter(s => s.outcome === 'open').length;
   const ambig    = signals.filter(s => s.outcome === 'ambiguous').length;
   const resolved = wins + losses;
-  const wr       = resolved > 0 ? (wins / resolved * 100).toFixed(1) + '%' : '‚Äî';
+  const wr = resolved > 0 ? (wins / resolved * 100).toFixed(1) + '%' : 'N/A';
 
   document.getElementById('cTotal').textContent = total;
   document.getElementById('cLong').textContent  = longs;
