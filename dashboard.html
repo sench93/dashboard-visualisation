@@ -225,7 +225,7 @@ function renderTable(signals) {
   const tbody = document.getElementById('tbody');
   tbody.innerHTML = '';
   for (const s of signals) {
-    const sideBadge    = s.side === 'long' ? '<span class="badge bl">‚ñ≤ Long</span>' : '<span class="badge bs">‚ñº Short</span>';
+    const sideBadge    = s.side === 'long' ? '<span class="badge bl">&#9650; Long</span>' : '<span class="badge bs">&#9660; Short</span>';
     const outcomeBadge = s.outcome === 'win'       ? '<span class="badge bw">‚úì Win</span>'
                        : s.outcome === 'loss'      ? '<span class="badge blo">‚úó Loss</span>'
                        : s.outcome === 'ambiguous' ? '<span class="badge" style="background:#1c2333;color:#d29922">~ Ambig</span>'
