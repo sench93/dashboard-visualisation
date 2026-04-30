@@ -68,12 +68,12 @@
   <h1>Trading Signals Dashboard</h1>
   <div id="meta">
     <span id="updated"></span>
-    <button onclick="load()">‚Üª Refresh</button>
+    <button onclick="load()">Refresh</button>
   </div>
 </header>
 
 <div id="err"></div>
-<div id="status">Loading‚Ä¶ (fetching price data, may take ~15s)</div>
+<div id="status">Loading... (fetching price data, may take ~15s)</div>
 
 <div id="dash" style="display:none">
 
@@ -105,7 +105,7 @@
       <label>Timeframe</label>
       <select id="fTF" onchange="applyFilters()"><option value="">All</option></select>
     </div>
-    <button id="resetFilters" onclick="resetFilters()">‚úï Reset</button>
+    <button id="resetFilters" onclick="resetFilters()">Reset</button>
   </div>
 
   <div class="cards">
@@ -204,7 +204,7 @@ function renderStats(signals) {
   document.getElementById('cLoss').textContent  = losses;
   document.getElementById('cOpen').textContent  = open;
   document.getElementById('cWR').textContent    = wr;
-  document.getElementById('cSub').textContent   = `RR 1:1 ¬∑ ${resolved} resolved ¬∑ ${open} open`;
+  document.getElementById('cSub').textContent   = `RR 1:1 - ${resolved} resolved - ${open} open`;
 
   mkDoughnut('cLS',  ['Long','Short'],                   [longs,shorts],          [G,R]);
   mkDoughnut('cOut', ['Win','Loss','Open','Ambiguous'],   [wins,losses,open,ambig],[G,R,'#3b4555',Y]);
@@ -226,8 +226,8 @@ function renderTable(signals) {
   tbody.innerHTML = '';
   for (const s of signals) {
     const sideBadge    = s.side === 'long' ? '<span class="badge bl">&#9650; Long</span>' : '<span class="badge bs">&#9660; Short</span>';
-    const outcomeBadge = s.outcome === 'win'       ? '<span class="badge bw">‚úì Win</span>'
-                       : s.outcome === 'loss'      ? '<span class="badge blo">‚úó Loss</span>'
+    const outcomeBadge = s.outcome === 'win'       ? '<span class="badge bw">Win</span>'
+                       : s.outcome === 'loss'      ? '<span class="badge blo">Loss</span>'
                        : s.outcome === 'ambiguous' ? '<span class="badge" style="background:#1c2333;color:#d29922">~ Ambig</span>'
                        :                             '<span class="badge bo">Open</span>';
     const tr = document.createElement('tr');
@@ -293,7 +293,7 @@ function resetFilters() {
 // ‚îÄ‚îÄ Load data from server ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
 async function load() {
   document.getElementById('status').style.display = 'block';
-  document.getElementById('status').textContent   = 'Loading‚Ä¶ (fetching price data, may take ~15s)';
+  document.getElementById('status').textContent   = 'Loading... (fetching price data, may take ~15s)';
   document.getElementById('dash').style.display   = 'none';
   document.getElementById('err').style.display    = 'none';
 
