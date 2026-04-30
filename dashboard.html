@@ -9,17 +9,33 @@
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
     body { background: #0d1117; color: #e6edf3; font-family: 'Segoe UI', system-ui, sans-serif; padding: 24px; }
 
-    header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 28px; }
+    header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 24px; }
     header h1 { font-size: 1.4rem; font-weight: 600; }
     #meta { font-size: 0.78rem; color: #8b949e; display: flex; gap: 12px; align-items: center; }
     button { background: #21262d; border: 1px solid #30363d; color: #c9d1d9; padding: 6px 14px; border-radius: 6px; cursor: pointer; font-size: 0.82rem; }
     button:hover { background: #30363d; }
 
+    /* ‚îÄ‚îÄ Filters ‚îÄ‚îÄ */
+    #filters {
+      display: flex; flex-wrap: wrap; gap: 10px; align-items: center;
+      background: #161b22; border: 1px solid #30363d; border-radius: 10px;
+      padding: 14px 18px; margin-bottom: 24px;
+    }
+    #filters label { font-size: 0.75rem; color: #8b949e; text-transform: uppercase; letter-spacing: .06em; margin-right: 4px; }
+    #filters select {
+      background: #0d1117; border: 1px solid #30363d; color: #e6edf3;
+      padding: 5px 10px; border-radius: 6px; font-size: 0.82rem; cursor: pointer;
+    }
+    #filters select:focus { outline: none; border-color: #58a6ff; }
+    .filter-group { display: flex; align-items: center; gap: 6px; }
+    #resetFilters { color: #8b949e; border-color: transparent; background: transparent; padding: 5px 10px; }
+    #resetFilters:hover { color: #e6edf3; background: #21262d; border-color: #30363d; }
+
     .cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 16px; margin-bottom: 28px; }
     .card { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 18px 20px; }
     .card .label { font-size: 0.72rem; color: #8b949e; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 8px; }
     .card .value { font-size: 2rem; font-weight: 700; line-height: 1; }
-    .card .sub { font-size: 0.72rem; color: #8b949e; margin-top: 6px; }
+    .card .sub   { font-size: 0.72rem; color: #8b949e; margin-top: 6px; }
 
     .charts { display: grid; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); gap: 20px; margin-bottom: 28px; }
     .chart-box { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 20px; }
@@ -28,20 +44,22 @@
 
     .table-wrap { background: #161b22; border: 1px solid #30363d; border-radius: 10px; padding: 20px; overflow-x: auto; }
     .table-wrap h2 { font-size: 0.8rem; font-weight: 600; color: #8b949e; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 16px; }
+    #filterCount { font-size: 0.75rem; color: #8b949e; font-weight: 400; margin-left: 8px; }
     table { width: 100%; border-collapse: collapse; font-size: 0.82rem; }
     th { text-align: left; padding: 8px 12px; color: #8b949e; border-bottom: 1px solid #30363d; font-weight: 500; white-space: nowrap; }
     td { padding: 8px 12px; border-bottom: 1px solid #21262d; white-space: nowrap; }
     tr:last-child td { border-bottom: none; }
+    tr.hidden { display: none; }
 
     .badge { display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 0.72rem; font-weight: 600; }
-    .bl { background:#0f2b1a; color:#3fb950; border:1px solid #238636; }
-    .bs { background:#2a0e0e; color:#f85149; border:1px solid #b91c1c; }
-    .bw { background:#0f2b1a; color:#3fb950; }
-    .blo{ background:#2a0e0e; color:#f85149; }
-    .bo { background:#1c2333; color:#8b949e; }
+    .bl  { background:#0f2b1a; color:#3fb950; border:1px solid #238636; }
+    .bs  { background:#2a0e0e; color:#f85149; border:1px solid #b91c1c; }
+    .bw  { background:#0f2b1a; color:#3fb950; }
+    .blo { background:#2a0e0e; color:#f85149; }
+    .bo  { background:#1c2333; color:#8b949e; }
 
     #status { text-align: center; padding: 60px; color: #8b949e; }
-    #err    { display: none; background: #2a0e0e; border: 1px solid #b91c1c; border-radius: 8px; padding: 16px; color: #f85149; margin-bottom: 20px; }
+    #err    { display:none; background:#2a0e0e; border:1px solid #b91c1c; border-radius:8px; padding:16px; color:#f85149; margin-bottom:20px; }
   </style>
 </head>
 <body>
@@ -50,22 +68,54 @@
   <h1>Trading Signals Dashboard</h1>
   <div id="meta">
     <span id="updated"></span>
-    <button onclick="load()">↻ Refresh</button>
+    <button onclick="load()">‚Üª Refresh</button>
   </div>
 </header>
 
 <div id="err"></div>
-<div id="status">Loading… (fetching price data, may take ~15s)</div>
+<div id="status">Loading‚Ä¶ (fetching price data, may take ~15s)</div>
 
 <div id="dash" style="display:none">
+
+  <!-- ‚îÄ‚îÄ Filters ‚îÄ‚îÄ -->
+  <div id="filters">
+    <div class="filter-group">
+      <label>Ticker</label>
+      <select id="fTicker" onchange="applyFilters()"><option value="">All</option></select>
+    </div>
+    <div class="filter-group">
+      <label>Side</label>
+      <select id="fSide" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="long">Long</option>
+        <option value="short">Short</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Outcome</label>
+      <select id="fOutcome" onchange="applyFilters()">
+        <option value="">All</option>
+        <option value="win">Win</option>
+        <option value="loss">Loss</option>
+        <option value="open">Open</option>
+        <option value="ambiguous">Ambiguous</option>
+      </select>
+    </div>
+    <div class="filter-group">
+      <label>Timeframe</label>
+      <select id="fTF" onchange="applyFilters()"><option value="">All</option></select>
+    </div>
+    <button id="resetFilters" onclick="resetFilters()">‚úï Reset</button>
+  </div>
+
   <div class="cards">
-    <div class="card"><div class="label">Total</div><div class="value" style="color:#58a6ff" id="cTotal">—</div></div>
-    <div class="card"><div class="label">Long</div><div class="value" style="color:#3fb950" id="cLong">—</div></div>
-    <div class="card"><div class="label">Short</div><div class="value" style="color:#f85149" id="cShort">—</div></div>
-    <div class="card"><div class="label">Win Rate</div><div class="value" style="color:#d29922" id="cWR">—</div><div class="sub" id="cSub"></div></div>
-    <div class="card"><div class="label">Wins</div><div class="value" style="color:#3fb950" id="cWins">—</div></div>
-    <div class="card"><div class="label">Losses</div><div class="value" style="color:#f85149" id="cLoss">—</div></div>
-    <div class="card"><div class="label">Open</div><div class="value" style="color:#bc8cff" id="cOpen">—</div></div>
+    <div class="card"><div class="label">Total</div><div class="value" style="color:#58a6ff" id="cTotal">‚Äî</div></div>
+    <div class="card"><div class="label">Long</div><div class="value" style="color:#3fb950" id="cLong">‚Äî</div></div>
+    <div class="card"><div class="label">Short</div><div class="value" style="color:#f85149" id="cShort">‚Äî</div></div>
+    <div class="card"><div class="label">Win Rate</div><div class="value" style="color:#d29922" id="cWR">‚Äî</div><div class="sub" id="cSub"></div></div>
+    <div class="card"><div class="label">Wins</div><div class="value" style="color:#3fb950" id="cWins">‚Äî</div></div>
+    <div class="card"><div class="label">Losses</div><div class="value" style="color:#f85149" id="cLoss">‚Äî</div></div>
+    <div class="card"><div class="label">Open</div><div class="value" style="color:#bc8cff" id="cOpen">‚Äî</div></div>
   </div>
 
   <div class="charts">
@@ -76,7 +126,7 @@
   </div>
 
   <div class="table-wrap">
-    <h2>All Signals</h2>
+    <h2>Signals <span id="filterCount"></span></h2>
     <table>
       <thead><tr><th>Time</th><th>Ticker</th><th>TF</th><th>Side</th><th>Entry</th><th>TP</th><th>SL</th><th>Outcome</th></tr></thead>
       <tbody id="tbody"></tbody>
@@ -85,11 +135,14 @@
 </div>
 
 <script>
-const G = '#3fb950', R = '#f85149', B = '#58a6ff', Y = '#d29922', P = '#bc8cff';
+const G = '#3fb950', R = '#f85149', B = '#58a6ff', Y = '#d29922';
 const GRID = '#21262d';
 Chart.defaults.color = '#8b949e';
 Chart.defaults.borderColor = GRID;
 
+let ALL_SIGNALS = []; // full dataset, never mutated by filters
+
+// ‚îÄ‚îÄ Chart helpers ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
 const ch = {};
 function mkDoughnut(id, labels, data, colors) {
   if (ch[id]) ch[id].destroy();
@@ -115,52 +168,34 @@ function mkBar(id, labels, datasets, stacked) {
   });
 }
 
+// ‚îÄ‚îÄ Helpers ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
 function tfLabel(v) {
   const n = parseInt(v);
   if (isNaN(n)) return v;
-  if (n < 60) return n + 'm';
+  if (n < 60)   return n + 'm';
   if (n < 1440) return (n / 60) + 'h';
   return (n / 1440) + 'D';
 }
 function fmtTime(iso) {
-  if (!iso) return '—';
-  return new Date(iso).toLocaleString('en-GB', { month: 'short', day: '2-digit', hour: '2-digit', minute: '2-digit', hour12: false }).replace(',', '');
+  if (!iso) return '‚Äî';
+  return new Date(iso).toLocaleString('en-GB', { month:'short', day:'2-digit', hour:'2-digit', minute:'2-digit', hour12:false }).replace(',','');
 }
 function fmt(v) {
   const n = parseFloat(v);
-  return isNaN(n) ? '—' : n.toLocaleString('en', { maximumFractionDigits: 4 });
+  return isNaN(n) ? '‚Äî' : n.toLocaleString('en', { maximumFractionDigits: 4 });
 }
 
-async function load() {
-  document.getElementById('status').style.display = 'block';
-  document.getElementById('status').textContent = 'Loading… (fetching price data, may take ~15s)';
-  document.getElementById('dash').style.display = 'none';
-  document.getElementById('err').style.display = 'none';
-
-  let signals;
-  try {
-    const res = await fetch('/api/outcomes', { cache: 'no-store' });
-    if (!res.ok) throw new Error('Server error ' + res.status);
-    signals = await res.json();
-    if (!Array.isArray(signals)) throw new Error('Unexpected response format');
-  } catch (e) {
-    document.getElementById('status').style.display = 'none';
-    document.getElementById('err').style.display = 'block';
-    document.getElementById('err').textContent = 'Error: ' + e.message;
-    return;
-  }
-
-  signals.sort((a, b) => new Date(b.time) - new Date(a.time));
-
-  const total   = signals.length;
-  const longs   = signals.filter(s => s.side === 'long').length;
-  const shorts  = signals.filter(s => s.side === 'short').length;
-  const wins    = signals.filter(s => s.outcome === 'win').length;
-  const losses  = signals.filter(s => s.outcome === 'loss').length;
-  const open    = signals.filter(s => s.outcome === 'open').length;
-  const ambig   = signals.filter(s => s.outcome === 'ambiguous').length;
+// ‚îÄ‚îÄ Render stats + charts for a given signal set ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+function renderStats(signals) {
+  const total    = signals.length;
+  const longs    = signals.filter(s => s.side === 'long').length;
+  const shorts   = signals.filter(s => s.side === 'short').length;
+  const wins     = signals.filter(s => s.outcome === 'win').length;
+  const losses   = signals.filter(s => s.outcome === 'loss').length;
+  const open     = signals.filter(s => s.outcome === 'open').length;
+  const ambig    = signals.filter(s => s.outcome === 'ambiguous').length;
   const resolved = wins + losses;
-  const wr = resolved > 0 ? (wins / resolved * 100).toFixed(1) + '%' : '—';
+  const wr       = resolved > 0 ? (wins / resolved * 100).toFixed(1) + '%' : '‚Äî';
 
   document.getElementById('cTotal').textContent = total;
   document.getElementById('cLong').textContent  = longs;
@@ -169,38 +204,119 @@ async function load() {
   document.getElementById('cLoss').textContent  = losses;
   document.getElementById('cOpen').textContent  = open;
   document.getElementById('cWR').textContent    = wr;
-  document.getElementById('cSub').textContent   = `RR 1:1 · ${resolved} resolved · ${open} open`;
+  document.getElementById('cSub').textContent   = `RR 1:1 ¬∑ ${resolved} resolved ¬∑ ${open} open`;
 
-  // Charts
-  mkDoughnut('cLS', ['Long','Short'], [longs, shorts], [G, R]);
-  mkDoughnut('cOut', ['Win','Loss','Open','Ambiguous'], [wins,losses,open,ambig], [G,R,'#3b4555',Y]);
+  mkDoughnut('cLS',  ['Long','Short'],                   [longs,shorts],          [G,R]);
+  mkDoughnut('cOut', ['Win','Loss','Open','Ambiguous'],   [wins,losses,open,ambig],[G,R,'#3b4555',Y]);
 
   const tickers = [...new Set(signals.map(s => s.ticker))];
   mkBar('cTicker', tickers, [
-    { label: 'Long',  data: tickers.map(t => signals.filter(s => s.ticker===t && s.side==='long').length),  backgroundColor: G },
-    { label: 'Short', data: tickers.map(t => signals.filter(s => s.ticker===t && s.side==='short').length), backgroundColor: R },
+    { label:'Long',  data: tickers.map(t => signals.filter(s=>s.ticker===t&&s.side==='long').length),  backgroundColor:G },
+    { label:'Short', data: tickers.map(t => signals.filter(s=>s.ticker===t&&s.side==='short').length), backgroundColor:R },
   ], true);
   mkBar('cWLT', tickers, [
-    { label: 'Wins',   data: tickers.map(t => signals.filter(s => s.ticker===t && s.outcome==='win').length),  backgroundColor: G },
-    { label: 'Losses', data: tickers.map(t => signals.filter(s => s.ticker===t && s.outcome==='loss').length), backgroundColor: R },
+    { label:'Wins',   data: tickers.map(t => signals.filter(s=>s.ticker===t&&s.outcome==='win').length),  backgroundColor:G },
+    { label:'Losses', data: tickers.map(t => signals.filter(s=>s.ticker===t&&s.outcome==='loss').length), backgroundColor:R },
   ], true);
+}
 
-  // Table
+// ‚îÄ‚îÄ Render table rows ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+function renderTable(signals) {
   const tbody = document.getElementById('tbody');
   tbody.innerHTML = '';
   for (const s of signals) {
-    const sideBadge    = s.side === 'long' ? '<span class="badge bl">▲ Long</span>' : '<span class="badge bs">▼ Short</span>';
-    const outcomeBadge = s.outcome === 'win'  ? '<span class="badge bw">✓ Win</span>'
-                       : s.outcome === 'loss' ? '<span class="badge blo">✗ Loss</span>'
-                       :                        '<span class="badge bo">Open</span>';
+    const sideBadge    = s.side === 'long' ? '<span class="badge bl">‚ñ≤ Long</span>' : '<span class="badge bs">‚ñº Short</span>';
+    const outcomeBadge = s.outcome === 'win'       ? '<span class="badge bw">‚úì Win</span>'
+                       : s.outcome === 'loss'      ? '<span class="badge blo">‚úó Loss</span>'
+                       : s.outcome === 'ambiguous' ? '<span class="badge" style="background:#1c2333;color:#d29922">~ Ambig</span>'
+                       :                             '<span class="badge bo">Open</span>';
     const tr = document.createElement('tr');
-    tr.innerHTML = `<td>${fmtTime(s.time)}</td><td><strong>${s.ticker}</strong></td><td>${tfLabel(s.interval)}</td><td>${sideBadge}</td><td>${fmt(s.entry)}</td><td style="color:${G}">${fmt(s.tp)}</td><td style="color:${R}">${fmt(s.sl)}</td><td>${outcomeBadge}</td>`;
+    tr.dataset.ticker  = s.ticker;
+    tr.dataset.side    = s.side;
+    tr.dataset.outcome = s.outcome;
+    tr.dataset.tf      = tfLabel(s.interval);
+    tr.innerHTML = `
+      <td>${fmtTime(s.time)}</td>
+      <td><strong>${s.ticker}</strong></td>
+      <td>${tfLabel(s.interval)}</td>
+      <td>${sideBadge}</td>
+      <td>${fmt(s.entry)}</td>
+      <td style="color:${G}">${fmt(s.tp)}</td>
+      <td style="color:${R}">${fmt(s.sl)}</td>
+      <td>${outcomeBadge}</td>`;
     tbody.appendChild(tr);
   }
+}
 
-  document.getElementById('status').style.display = 'none';
-  document.getElementById('dash').style.display = 'block';
-  document.getElementById('updated').textContent = 'Updated ' + new Date().toLocaleTimeString();
+// ‚îÄ‚îÄ Populate filter dropdowns from full dataset ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+function populateFilters(signals) {
+  const tickers = [...new Set(signals.map(s => s.ticker))].sort();
+  const tfs     = [...new Set(signals.map(s => tfLabel(s.interval)))].sort();
+
+  const fTicker = document.getElementById('fTicker');
+  const fTF     = document.getElementById('fTF');
+  fTicker.innerHTML = '<option value="">All</option>' + tickers.map(t => `<option value="${t}">${t}</option>`).join('');
+  fTF.innerHTML     = '<option value="">All</option>' + tfs.map(t => `<option value="${t}">${t}</option>`).join('');
+}
+
+// ‚îÄ‚îÄ Apply filters ‚Üí re-render stats, charts, table ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+function applyFilters() {
+  const ticker  = document.getElementById('fTicker').value;
+  const side    = document.getElementById('fSide').value;
+  const outcome = document.getElementById('fOutcome').value;
+  const tf      = document.getElementById('fTF').value;
+
+  const filtered = ALL_SIGNALS.filter(s =>
+    (!ticker  || s.ticker  === ticker)  &&
+    (!side    || s.side    === side)    &&
+    (!outcome || s.outcome === outcome) &&
+    (!tf      || tfLabel(s.interval) === tf)
+  );
+
+  renderStats(filtered);
+  renderTable(filtered);
+
+  const total = ALL_SIGNALS.length;
+  const shown = filtered.length;
+  document.getElementById('filterCount').textContent =
+    shown === total ? `(${total})` : `(${shown} of ${total})`;
+}
+
+function resetFilters() {
+  document.getElementById('fTicker').value  = '';
+  document.getElementById('fSide').value    = '';
+  document.getElementById('fOutcome').value = '';
+  document.getElementById('fTF').value      = '';
+  applyFilters();
+}
+
+// ‚îÄ‚îÄ Load data from server ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ‚îÄ
+async function load() {
+  document.getElementById('status').style.display = 'block';
+  document.getElementById('status').textContent   = 'Loading‚Ä¶ (fetching price data, may take ~15s)';
+  document.getElementById('dash').style.display   = 'none';
+  document.getElementById('err').style.display    = 'none';
+
+  try {
+    const res = await fetch('/api/outcomes', { cache: 'no-store' });
+    if (!res.ok) throw new Error('Server error ' + res.status);
+    const signals = await res.json();
+    if (!Array.isArray(signals)) throw new Error('Unexpected response');
+
+    signals.sort((a, b) => new Date(b.time) - new Date(a.time));
+    ALL_SIGNALS = signals;
+
+    populateFilters(signals);
+    applyFilters();
+
+    document.getElementById('status').style.display = 'none';
+    document.getElementById('dash').style.display   = 'block';
+    document.getElementById('updated').textContent  = 'Updated ' + new Date().toLocaleTimeString();
+  } catch (e) {
+    document.getElementById('status').style.display = 'none';
+    document.getElementById('err').style.display    = 'block';
+    document.getElementById('err').textContent      = 'Error: ' + e.message;
+  }
 }
 
 load();
